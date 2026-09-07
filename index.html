@@ -104,10 +104,12 @@
   .btn-export:hover { background-color: #047857; }
   .btn-save { background-color: var(--primary); color: white; }
   .btn-save:hover { background-color: var(--primary-dark); }
-  .btn-unlock { background-color: #d97706; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; }
+  .btn-unlock { background-color: #d97706; color: white; padding: 6px 10px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; }
   .btn-unlock:hover { background-color: #b45309; }
-  .btn-edit { background-color: #0d9488; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; margin-right: 4px; }
+  .btn-edit { background-color: #0d9488; color: white; padding: 6px 10px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; margin-right: 2px; }
   .btn-edit:hover { background-color: #0f766e; }
+  .btn-delete { background-color: #dc2626; color: white; padding: 6px 10px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; margin-left: 2px; }
+  .btn-delete:hover { background-color: #b91c1c; }
   .btn-back { background-color: #64748b; color: white; margin-bottom: 20px; }
   .btn-back:hover { background-color: #475569; }
   
@@ -229,7 +231,7 @@
     <div class="dashboard-grid">
       <div class="dash-card" onclick="showHRSection('hr-users')">
         <h3>👥 1. 員工帳號與權限管理</h3>
-        <p>管理員工 Email、狀態（啟用/停用）、角色調整與重置預設密碼 (123456)，支援 CSV 批次匯入。</p>
+        <p>管理員工 Email、狀態（啟用/停用）、角色調整與重置預設密碼 (123456)，支援 CSV 批次匯入與刪除。</p>
       </div>
 
       <div class="dash-card" onclick="showHRSection('hr-status')">
@@ -985,6 +987,7 @@
         <td>
           <button class="btn-edit" onclick="openEmpEdit(${idx})">編輯</button>
           <button class="btn-unlock" onclick="resetEmpPwd(${idx})">重設密碼</button>
+          <button class="btn-delete" onclick="deleteEmployee(${idx})">刪除</button>
         </td>
       </tr>`;
     });
@@ -1031,6 +1034,23 @@
       saveDB();
       renderEmpManageTable();
       alert("密碼已重設為 123456！");
+    }
+  }
+
+  function deleteEmployee(idx) {
+    let targetEmp = employeeDB[idx];
+    // 預防直接刪除自己或最高管理者
+    if (currentLogUser && currentLogUser.email === targetEmp.email) {
+      alert("【無法刪除】您目前正在登入使用此帳號，無法在系統內自我刪除！");
+      return;
+    }
+
+    if (confirm(`⚠️ 確定要永久刪除員工【${targetEmp.name} (${targetEmp.email})】的資料嗎？此動作無法復原。`)) {
+      employeeDB.splice(idx, 1);
+      saveDB();
+      updateBossOptions();
+      renderEmpManageTable();
+      alert("已成功刪除該員工資料！");
     }
   }
 
