@@ -16,8 +16,18 @@
   }
 
   * { box-sizing: border-box; font-family: "Microsoft JhengHei", system-ui, -apple-system, sans-serif; }
-  body { background-color: var(--slate-bg); margin: 0; padding: 30px; color: var(--text-main); line-height: 1.5; }
-  .container { max-width: 1160px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); padding: 35px; border: 1px solid var(--border-color); }
+  
+  /* 確保所有畫面與容器皆可完整向下捲動 */
+  html, body { 
+    background-color: var(--slate-bg); 
+    margin: 0; 
+    padding: 30px; 
+    color: var(--text-main); 
+    line-height: 1.5; 
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+  .container { max-width: 1160px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); padding: 35px; border: 1px solid var(--border-color); margin-bottom: 50px; }
 
   /* 登入與安全彈窗畫面 */
   #login-screen {
@@ -32,8 +42,8 @@
   .btn-login:hover { background: var(--primary-dark); }
 
   /* 彈窗樣式 */
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
-  .modal-card { background: white; padding: 35px; border-radius: 16px; width: 460px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); }
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; padding: 20px; }
+  .modal-card { background: white; padding: 35px; border-radius: 16px; width: 460px; max-width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
   .modal-card h3 { margin-top: 0; color: var(--text-main); font-size: 20px; }
 
   /* 頂部導覽 */
@@ -51,13 +61,13 @@
   .dash-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 0; }
 
   /* 表格與頁籤 */
-  .info-bar { display: flex; gap: 20px; background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid var(--border-color); }
-  .info-item { flex: 1; }
+  .info-bar { display: flex; gap: 20px; background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid var(--border-color); flex-wrap: wrap; }
+  .info-item { flex: 1; min-width: 200px; }
   .info-item label { font-size: 12px; color: var(--text-muted); display: block; font-weight: 600; margin-bottom: 4px; }
   .info-item select, .info-item input { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; background: #fff; }
 
-  .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 25px; gap: 10px; }
-  .tab-btn { padding: 12px 20px; font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s; }
+  .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 25px; gap: 10px; overflow-x: auto; }
+  .tab-btn { padding: 12px 20px; font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s; white-space: nowrap; }
   .tab-btn:hover { color: var(--primary); }
   .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
   .tab-content { display: none; }
@@ -70,23 +80,25 @@
   input[type="number"], input[type="text"], textarea, select { width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #fff; }
   input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
   
-  .score-card { background: #f8fafc; border: 1px solid var(--border-color); padding: 20px; border-radius: 10px; display: flex; justify-content: space-around; text-align: center; margin-top: 20px; }
+  .score-card { background: #f8fafc; border: 1px solid var(--border-color); padding: 20px; border-radius: 10px; display: flex; justify-content: space-around; text-align: center; margin-top: 20px; flex-wrap: wrap; gap: 15px; }
   .score-box { font-size: 24px; font-weight: 700; color: var(--primary); }
   .grade-box { font-size: 13px; font-weight: 600; color: #059669; margin-top: 4px; background: #ecfdf5; padding: 2px 8px; border-radius: 10px; display: inline-block; }
 
   .feedback-section { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .feedback-box label { font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-main); font-size: 13px; }
 
-  .btn-group { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
+  .btn-group { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; flex-wrap: wrap; }
   .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
   .btn-export { background-color: #059669; color: white; }
   .btn-export:hover { background-color: #047857; }
   .btn-save { background-color: var(--primary); color: white; }
   .btn-save:hover { background-color: var(--primary-dark); }
-  .btn-unlock { background-color: #d97706; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; }
+  .btn-unlock { background-color: #d97706; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; margin: 2px; }
   .btn-unlock:hover { background-color: #b45309; }
   .btn-edit { background-color: #0d9488; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; margin-right: 4px; }
   .btn-edit:hover { background-color: #0f766e; }
+  .btn-delete { background-color: #dc2626; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; margin: 2px; }
+  .btn-delete:hover { background-color: #b91c1c; }
   .btn-back { background-color: #64748b; color: white; margin-bottom: 20px; }
   .btn-back:hover { background-color: #475569; }
   
@@ -98,6 +110,10 @@
 
   .error-msg { color: #dc2626; font-size: 13px; margin-top: 10px; text-align: center; font-weight: 600; }
   .deadline-hint { font-size: 12px; color: var(--text-muted); background: #f1f5f9; padding: 8px 12px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid var(--primary); }
+
+  @media (max-width: 768px) {
+    .dashboard-grid, .feedback-section { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -205,12 +221,12 @@
     <div class="dashboard-grid">
       <div class="dash-card" onclick="showHRSection('hr-users')">
         <h3>👥 1. 員工帳號與權限管理</h3>
-        <p>管理員工 Email、狀態（啟用/停用）、角色調整與重置預設密碼 (123456)，支援 CSV 批次匯入。</p>
+        <p>管理員工 Email、狀態（啟用/停用）、角色調整、刪除與重置預設密碼 (123456)。</p>
       </div>
 
       <div class="dash-card" onclick="showHRSection('hr-status')">
         <h3>📈 2. 全公司進度與逾期解鎖釋放</h3>
-        <p>監控填寫狀態，針對逾期自動鎖定之表單執行 HR 後台強制解鎖釋放編輯權限（手動解鎖後自動展延 3 天）。</p>
+        <p>監控填寫狀態，針對逾期自動鎖定之表單執行 HR 後台強制解鎖（解鎖後自動展延 3 天）。</p>
       </div>
 
       <div class="dash-card" onclick="showHRSection('hr-export')">
@@ -229,20 +245,9 @@
       <button class="btn btn-back" onclick="hideHRSections()">← 返回 HR 控制台主頁</button>
       <h3 style="margin-top:0; font-size:18px;">👥 員工帳號、Email 與密碼狀態管理</h3>
       
-      <!-- 批次匯入區塊 -->
-      <div style="background:#eef2ff; padding:20px; border-radius:8px; border:1px solid #c7d2fe; margin-bottom:20px;">
-        <h4 style="margin-top:0; color:var(--primary); font-size:15px;">📂 批次匯入員工資料 (CSV)</h4>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">您可以上傳 CSV 檔案一次新增多位員工。格式範例：<code>姓名,Email,角色(staff/manager/gm/cfo/hr),職類(sales/service/admin),直屬主管</code></p>
-        <div style="display:flex; gap:12px; align-items:center;">
-          <input type="file" id="csv-file-input" accept=".csv" style="background:#fff; padding:6px; flex:1;">
-          <button class="btn btn-save" style="width:auto; margin:0; padding:8px 16px;" onclick="importCSVEmployees()">📥 匯入檔案</button>
-          <button class="btn btn-export" style="width:auto; margin:0; padding:8px 16px;" onclick="downloadCSVTemplate()">📄 下載範例 CSV</button>
-        </div>
-      </div>
-
       <div style="background:var(--slate-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:20px;">
-        <h4 style="margin-top:0; color:var(--primary); font-size:15px;">➕ 單筆新增人員資料</h4>
-        <div style="display:grid; grid-template-columns: 1fr 1.2fr 1fr 1fr 1.2fr auto; gap:12px; align-items:center;">
+        <h4 style="margin-top:0; color:var(--primary); font-size:15px;">➕ 新增人員資料</h4>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; align-items:center;">
           <div>
             <label style="font-size:12px; font-weight:600; color:var(--text-muted);">姓名</label>
             <input type="text" id="new-emp-name" placeholder="如: 王小明">
@@ -274,39 +279,43 @@
             <select id="new-emp-boss-select"></select>
           </div>
           <div style="align-self:end;">
-            <button class="btn btn-login" style="width:auto; margin:0; padding:9px 16px;" onclick="addEmployee()">新增</button>
+            <button class="btn btn-login" style="width:100%; margin:0; padding:9px 16px;" onclick="addEmployee()">新增</button>
           </div>
         </div>
       </div>
 
-      <table id="emp-manage-table">
-        <thead>
-          <tr>
-            <th>姓名</th>
-            <th>Email 帳號</th>
-            <th>帳號狀態</th>
-            <th>角色身份</th>
-            <th>職類</th>
-            <th>直屬主管 / 覆核主管</th>
-            <th>密碼安全狀態</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div style="overflow-x:auto;">
+        <table id="emp-manage-table">
+          <thead>
+            <tr>
+              <th>姓名</th>
+              <th>Email 帳號</th>
+              <th>帳號狀態</th>
+              <th>角色身份</th>
+              <th>職類</th>
+              <th>直屬主管 / 覆核主管</th>
+              <th>密碼安全狀態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- HR 子功能 2 -->
     <div id="hr-status" class="admin-subpanel" style="display:none; margin-top:25px; background:#fff; padding:25px; border-radius:10px; border:1px solid var(--border-color);">
       <button class="btn btn-back" onclick="hideHRSections()">← 返回 HR 控制台主頁</button>
       <h3 style="margin-top:0; font-size:18px;">📈 全公司 2026 年度績效填寫進度與逾期解鎖釋放</h3>
-      <p style="font-size:13px; color:var(--text-muted);">若表單因超過期限自動上鎖（顯示紅字「已逾期鎖定」），HR 可在此點擊各階段按鈕手動解鎖（解鎖後自動展延 3 天）。</p>
-      <table>
-        <thead>
-          <tr><th>員工姓名</th><th>Email</th><th>角色</th><th>直屬主管</th><th>期初約定</th><th>期中追蹤</th><th>期末評核</th><th>HR 後台解鎖釋放</th></tr>
-        </thead>
-        <tbody id="status-tbody"></tbody>
-      </table>
+      <p style="font-size:13px; color:var(--text-muted);">若表單因超過期限自動上鎖，HR 可在此點擊解鎖。解鎖後系統將自動展延 3 天開放編輯。</p>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr><th>員工姓名</th><th>Email</th><th>角色</th><th>直屬主管</th><th>期初約定</th><th>期中追蹤</th><th>期末評核</th><th>HR 後台解鎖釋放</th></tr>
+          </thead>
+          <tbody id="status-tbody"></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- HR 子功能 3 -->
@@ -339,20 +348,22 @@
     <div id="boss-pending-panel" style="display:none; margin-top:25px; background:#fff; padding:25px; border-radius:10px; border:1px solid var(--border-color);">
       <button class="btn btn-back" onclick="hideBossSubPanels()">← 返回主管工作台</button>
       <h3 style="margin-top:0; font-size:18px;">📋 轄下同仁待評核表單清單</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>部屬姓名</th>
-            <th>Email</th>
-            <th>職類</th>
-            <th>期初目標</th>
-            <th>期中追蹤</th>
-            <th>期末評核</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="boss-pending-tbody"></tbody>
-      </table>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>部屬姓名</th>
+              <th>Email</th>
+              <th>職類</th>
+              <th>期初目標</th>
+              <th>期中追蹤</th>
+              <th>期末評核</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="boss-pending-tbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -394,22 +405,24 @@
 
     <!-- 分頁 1：期初目標 -->
     <div id="tab1" class="tab-content active">
-      <div class="deadline-hint">⏰ <b>期初目標約定填寫期限：</b> 每年 1月1日 ~ 1月10日（逾期自動鎖定，經 HR 手動解鎖後自動展延 3 天）。</div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <div class="deadline-hint">⏰ <b>期初目標約定填寫期限：</b> 每年 1月1日 ~ 1月10日（逾期自動鎖定，解鎖後自動展延 3 天）。</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
         <h3 style="margin:0; font-size:17px; color:var(--text-main);">期初目標與衡量標準約定 (KPI / OKR)</h3>
         <span id="tab1-status" class="status-tag st-pending">狀態：檢查中...</span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 25%;">考核項目 / 類別</th>
-            <th style="width: 45%;">關鍵結果與衡量標準 (Target / KR)</th>
-            <th style="width: 15%;">預計完成時程</th>
-            <th style="width: 15%;">主管審核狀態</th>
-          </tr>
-        </thead>
-        <tbody id="goal-tbody"></tbody>
-      </table>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 25%;">考核項目 / 類別</th>
+              <th style="width: 45%;">關鍵結果與衡量標準 (Target / KR)</th>
+              <th style="width: 15%;">預計完成時程</th>
+              <th style="width: 15%;">主管審核狀態</th>
+            </tr>
+          </thead>
+          <tbody id="goal-tbody"></tbody>
+        </table>
+      </div>
       <div class="btn-group">
         <button id="btn-save-tab1" class="btn btn-save" onclick="saveSectionData('tab1')">💾 暫存 / 儲存期初目標</button>
       </div>
@@ -417,8 +430,8 @@
 
     <!-- 分頁 2：期中季度追蹤 -->
     <div id="tab2" class="tab-content">
-      <div class="deadline-hint">⏰ <b>季追蹤填寫期限：</b> 每季的第一個月 1日 ~ 10日（即 Q1: 4/1~4/10, Q2: 7/1~7/10, Q3: 10/1~10/10，逾期自動鎖定，經 HR 手動解鎖後自動展延 3 天）。</div>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <div class="deadline-hint">⏰ <b>季追蹤填寫期限：</b> 每季第一個月 1日 ~ 10日（逾期自動鎖定，解鎖後自動展延 3 天）。</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap:wrap; gap:10px;">
         <h3 style="margin:0; font-size:17px; color:var(--text-main);">期中季度績效檢視與輔導紀錄</h3>
         <div style="display: flex; align-items: center; gap: 10px;">
           <span id="tab2-status" class="status-tag st-pending">狀態：檢查中...</span>
@@ -430,18 +443,20 @@
         </div>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 20%;">工作目標項目</th>
-            <th style="width: 25%;">連動之關鍵結果 (Target / KR)</th>
-            <th style="width: 25%;">當季推進進度與具體成果說明</th>
-            <th style="width: 12%;">達成率 (%)</th>
-            <th style="width: 18%;">主管輔導回饋與資源提供</th>
-          </tr>
-        </thead>
-        <tbody id="midterm-tbody"></tbody>
-      </table>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 20%;">工作目標項目</th>
+              <th style="width: 25%;">連動之關鍵結果 (Target / KR)</th>
+              <th style="width: 25%;">當季推進進度與具體成果說明</th>
+              <th style="width: 12%;">達成率 (%)</th>
+              <th style="width: 18%;">主管輔導回饋與資源提供</th>
+            </tr>
+          </thead>
+          <tbody id="midterm-tbody"></tbody>
+        </table>
+      </div>
       <div class="btn-group">
         <button id="btn-save-tab2" class="btn btn-save" onclick="saveSectionData('tab2')">💾 暫存 / 儲存期中追蹤</button>
       </div>
@@ -449,25 +464,27 @@
 
     <!-- 分頁 3：期末評核 -->
     <div id="tab3" class="tab-content">
-      <div class="deadline-hint">⏰ <b>年底期末評核填寫期限：</b> 12月15日 ~ 次年 1月15日（逾期自動鎖定，經 HR 手動解鎖後自動展延 3 天）。</div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <div class="deadline-hint">⏰ <b>年底期末評核填寫期限：</b> 12月15日 ~ 次年 1月15日（逾期自動鎖定，解鎖後自動展延 3 天）。</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
         <h3 style="margin:0; font-size:17px; color:var(--text-main);">期末績效評核表 (工作目標 80% + 關鍵職能 20%)</h3>
         <span id="tab3-status" class="status-tag st-pending">狀態：檢查中...</span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 20%;">評分類別與項目</th>
-            <th style="width: 30%;">關鍵結果 / 衡量標準 (連動目標)</th>
-            <th style="width: 8%;">權重</th>
-            <th style="width: 11%;">自評 (1-100)</th>
-            <th style="width: 10%;">自評加權</th>
-            <th style="width: 11%;">覆評 (1-100)</th>
-            <th style="width: 10%;">覆評加權</th>
-          </tr>
-        </thead>
-        <tbody id="eval-tbody"></tbody>
-      </table>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 20%;">評分類別與項目</th>
+              <th style="width: 30%;">關鍵結果 / 衡量標準 (連動目標)</th>
+              <th style="width: 8%;">權重</th>
+              <th style="width: 11%;">自評 (1-100)</th>
+              <th style="width: 10%;">自評加權</th>
+              <th style="width: 11%;">覆評 (1-100)</th>
+              <th style="width: 10%;">覆評加權</th>
+            </tr>
+          </thead>
+          <tbody id="eval-tbody"></tbody>
+        </table>
+      </div>
 
       <div class="score-card">
         <div>
@@ -514,7 +531,7 @@
       isFirstLogin: true,
       status: "active",
       formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
-      extensions: {},
+      unlockExpiries: { tab1: null, tab2: null, tab3: null },
       data: { tab1: { work: [] }, tab2: { Q1: [], Q2: [], Q3: [] }, tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" } }
     },
     {
@@ -527,7 +544,7 @@
       isFirstLogin: true,
       status: "active",
       formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
-      extensions: {},
+      unlockExpiries: { tab1: null, tab2: null, tab3: null },
       data: { tab1: { work: [] }, tab2: { Q1: [], Q2: [], Q3: [] }, tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" } }
     },
     {
@@ -540,7 +557,7 @@
       isFirstLogin: true,
       status: "active",
       formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
-      extensions: {},
+      unlockExpiries: { tab1: null, tab2: null, tab3: null },
       data: { tab1: { work: [] }, tab2: { Q1: [], Q2: [], Q3: [] }, tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" } }
     },
     {
@@ -553,7 +570,7 @@
       isFirstLogin: true,
       status: "active",
       formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
-      extensions: {},
+      unlockExpiries: { tab1: null, tab2: null, tab3: null },
       data: { tab1: { work: [] }, tab2: { Q1: [], Q2: [], Q3: [] }, tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" } }
     },
     {
@@ -566,7 +583,7 @@
       isFirstLogin: true,
       status: "active",
       formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
-      extensions: {},
+      unlockExpiries: { tab1: null, tab2: null, tab3: null },
       data: {
         tab1: {
           work: [
@@ -590,6 +607,11 @@
   ];
 
   let employeeDB = JSON.parse(localStorage.getItem("SYS_EMP_DB")) || defaultDB;
+  
+  employeeDB.forEach(e => {
+    if(!e.unlockExpiries) e.unlockExpiries = { tab1: null, tab2: null, tab3: null };
+  });
+
   let currentLogUser = null;
   let activeTargetEmp = null; 
 
@@ -652,18 +674,14 @@
   }
 
   function checkIsLocked(tabKey) {
-    // 檢查是否有有效且尚未過期的手動解鎖展延天數
-    if (activeTargetEmp && activeTargetEmp.extensions && activeTargetEmp.extensions[tabKey]) {
-      let extTime = new Date(activeTargetEmp.extensions[tabKey]).getTime();
-      if (new Date().getTime() <= extTime) {
-        return false; // 展延期間內視為未鎖定
-      }
+    let now = new Date();
+    if (activeTargetEmp.unlockExpiries && activeTargetEmp.unlockExpiries[tabKey]) {
+      let expiryTime = new Date(activeTargetEmp.unlockExpiries[tabKey]);
+      if (now < expiryTime) return false;
     }
 
-    if (activeTargetEmp.formLocks[tabKey] === 'locked') return true;
-    let now = new Date();
-    let m = now.getMonth() + 1;
-    let d = now.getDate();
+    let m = now.getMonth() + 1; 
+    let d = now.getDate();      
 
     if (tabKey === 'tab1') {
       let isWithin = (m === 1 && d >= 1 && d <= 10);
@@ -796,9 +814,9 @@
         <td><b>${sub.name}</b></td>
         <td style="font-size:13px; color:var(--text-muted);">${sub.email || '-'}</td>
         <td>${sub.role.toUpperCase()}</td>
-        <td>${getStatusTag(sub.formLocks.tab1, sub, 'tab1')}</td>
-        <td>${getStatusTag(sub.formLocks.tab2, sub, 'tab2')}</td>
-        <td>${getStatusTag(sub.formLocks.tab3, sub, 'tab3')}</td>
+        <td>${getStatusTag(sub, 'tab1')}</td>
+        <td>${getStatusTag(sub, 'tab2')}</td>
+        <td>${getStatusTag(sub, 'tab3')}</td>
         <td><button class="btn-edit" onclick="openBossEvalForm('${sub.name}')">🔍 覆評/簽核</button></td>
       </tr>`;
     });
@@ -869,7 +887,7 @@
       isFirstLogin: true,
       status: "active",
       formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
-      extensions: {},
+      unlockExpiries: { tab1: null, tab2: null, tab3: null },
       data: {
         tab1: { work: [] },
         tab2: { Q1: [], Q2: [], Q3: [] },
@@ -884,80 +902,6 @@
     alert("成功新增員工！");
     document.getElementById('new-emp-name').value = "";
     document.getElementById('new-emp-email').value = "";
-  }
-
-  // 下載批次匯入範例 CSV
-  function downloadCSVTemplate() {
-    let csvContent = "\uFEFF" + "姓名,Email,角色身份,專業職類,直屬主管\n" + "王大同,datong@company.com,staff,sales,陳主管\n" + "林美玲,meiling@company.com,manager,service,總經理\n";
-    let encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
-    let link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "員工批次匯入範例.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  // 處理批次匯入 CSV 檔案
-  function importCSVEmployees() {
-    let fileInput = document.getElementById('csv-file-input');
-    if (!fileInput.files || fileInput.files.length === 0) {
-      alert("請先選擇要上傳的 CSV 檔案！");
-      return;
-    }
-
-    let file = fileInput.files[0];
-    let reader = new FileReader();
-    reader.onload = function(e) {
-      let text = e.target.result;
-      let lines = text.split(/\r\n|\n/);
-      let count = 0;
-      let skipped = 0;
-
-      for (let i = 1; i < lines.length; i++) {
-        let line = lines[i].trim();
-        if (!line) continue;
-        let cols = line.split(',');
-        if (cols.length >= 5) {
-          let name = cols[0].trim();
-          let email = cols[1].trim();
-          let userType = cols[2].trim() || 'staff';
-          let role = cols[3].trim() || 'sales';
-          let boss = cols[4].trim() || '無(最高主管)';
-
-          let exists = employeeDB.some(emp => emp.email && emp.email.toLowerCase() === email.toLowerCase());
-          if (!exists && email) {
-            employeeDB.push({
-              name: name,
-              email: email,
-              userType: userType,
-              role: role,
-              boss: boss,
-              pwd: "123456",
-              isFirstLogin: true,
-              status: "active",
-              formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
-              extensions: {},
-              data: {
-                tab1: { work: [] },
-                tab2: { Q1: [], Q2: [], Q3: [] },
-                tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" }
-              }
-            });
-            count++;
-          } else {
-            skipped++;
-          }
-        }
-      }
-
-      saveDB();
-      updateBossOptions();
-      renderEmpManageTable();
-      fileInput.value = "";
-      alert(`批次匯入完成！成功新增 ${count} 筆員工資料${skipped > 0 ? `（略過 ${skipped} 筆重複或格式錯誤的 Email）` : ''}。`);
-    };
-    reader.readAsText(file, "UTF-8");
   }
 
   function renderEmpManageTable() {
@@ -978,9 +922,26 @@
         <td>
           <button class="btn-edit" onclick="openEmpEdit(${idx})">編輯</button>
           <button class="btn-unlock" onclick="resetEmpPwd(${idx})">重設密碼</button>
+          <button class="btn-delete" onclick="deleteEmployee(${idx})">刪除</button>
         </td>
       </tr>`;
     });
+  }
+
+  // 刪除員工資料功能
+  function deleteEmployee(idx) {
+    let target = employeeDB[idx];
+    if (target.email === currentLogUser.email) {
+      alert("無法刪除您目前正在登入使用的 HR 管理者帳號！");
+      return;
+    }
+    if (confirm(`確定要永久刪除員工「${target.name} (${target.email})」的帳號與所有評核資料嗎？此動作無法復原。`)) {
+      employeeDB.splice(idx, 1);
+      saveDB();
+      updateBossOptions();
+      renderEmpManageTable();
+      alert("該員工資料已成功刪除。");
+    }
   }
 
   function openEmpEdit(idx) {
@@ -1036,9 +997,9 @@
         <td>${emp.email || '-'}</td>
         <td>${getTypeLabel(emp.userType)}</td>
         <td>${emp.boss || '-'}</td>
-        <td>${getStatusTag(emp.formLocks.tab1, emp, 'tab1')}</td>
-        <td>${getStatusTag(emp.formLocks.tab2, emp, 'tab2')}</td>
-        <td>${getStatusTag(emp.formLocks.tab3, emp, 'tab3')}</td>
+        <td>${getStatusTag(emp, 'tab1')}</td>
+        <td>${getStatusTag(emp, 'tab2')}</td>
+        <td>${getStatusTag(emp, 'tab3')}</td>
         <td>
           <button class="btn-unlock" onclick="hrUnlockForm(${idx}, 'tab1')">解鎖期初</button>
           <button class="btn-unlock" onclick="hrUnlockForm(${idx}, 'tab2')" style="background:#4f46e5;">解鎖期中</button>
@@ -1048,35 +1009,46 @@
     });
   }
 
-  function getStatusTag(st, emp, tabKey) {
-    if (st === 'approved') return '<span class="status-tag st-approved">已核准</span>';
-    if (st === 'submitted') return '<span class="status-tag st-pending">待覆核</span>';
-    if (st === 'locked') return '<span class="status-tag st-locked">已逾期鎖定</span>';
-    
-    // 檢查是否有進行中的 3 天自動展延
-    if (emp && emp.extensions && emp.extensions[tabKey]) {
-      let extTime = new Date(emp.extensions[tabKey]).getTime();
-      if (new Date().getTime() <= extTime) {
-        let extDateStr = new Date(emp.extensions[tabKey]).toLocaleDateString();
-        return `<span class="status-tag st-pending" style="background:#fef3c7; color:#b45309; border:1px solid #f59e0b;">已解鎖 (展延至 ${extDateStr})</span>`;
-      }
-    }
+  function getStatusTag(emp, tabKey) {
+    let now = new Date();
+    let isExpiring = emp.unlockExpiries && emp.unlockExpiries[tabKey] && new Date(emp.unlockExpiries[tabKey]) > now;
+    let locked = checkEmpIsLocked(emp, tabKey);
+
+    if (emp.formLocks[tabKey] === 'approved') return '<span class="status-tag st-approved">已核准</span>';
+    if (locked) return '<span class="status-tag st-locked">已逾期鎖定</span>';
+    if (isExpiring) return '<span class="status-tag st-pending" style="background:#dbeafe; color:#1e40af;">解鎖展延中 (3天)</span>';
+    if (emp.formLocks[tabKey] === 'submitted') return '<span class="status-tag st-pending">待覆核</span>';
     return '<span class="status-tag st-draft">草稿中</span>';
   }
 
-  function hrUnlockForm(idx, tabKey) {
-    employeeDB[idx].formLocks[tabKey] = 'draft';
-    
-    // 設定手動解鎖後自動展延 3 天
-    let extDate = new Date();
-    extDate.setDate(extDate.getDate() + 3);
-    employeeDB[idx].extensions = employeeDB[idx].extensions || {};
-    employeeDB[idx].extensions[tabKey] = extDate.toISOString();
+  function checkEmpIsLocked(emp, tabKey) {
+    if (emp.unlockExpiries && emp.unlockExpiries[tabKey]) {
+      let expiryTime = new Date(emp.unlockExpiries[tabKey]);
+      if (new Date() < expiryTime) return false;
+    }
+    let now = new Date();
+    let m = now.getMonth() + 1;
+    let d = now.getDate();
 
+    if (tabKey === 'tab1') return !((m === 1 && d >= 1 && d <= 10));
+    else if (tabKey === 'tab2') return !(m === 4 || m === 7 || m === 10) || !(d >= 1 && d <= 10);
+    else if (tabKey === 'tab3') return !((m === 12 && d >= 15) || (m === 1 && d <= 15));
+    return false;
+  }
+
+  function hrUnlockForm(idx, tabKey) {
+    let emp = employeeDB[idx];
+    if(!emp.unlockExpiries) emp.unlockExpiries = {};
+    
+    let expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 3);
+    
+    emp.unlockExpiries[tabKey] = expiryDate.toISOString();
+    emp.formLocks[tabKey] = 'draft';
+    
     saveDB();
     renderHRStatusTable();
-    let tabNameMap = { tab1: '期初目標', tab2: '期中追蹤', tab3: '期末評核' };
-    alert(`已成功將 ${employeeDB[idx].name} 的 [${tabNameMap[tabKey] || tabKey}] 表單解鎖，並自動展延 3 天至 ${extDate.toLocaleDateString()}！同仁現可重新登入填寫。`);
+    alert(`已成功將 ${emp.name} 的 [${tabKey}] 表單解鎖！系統已自動展延 3 天（至 ${expiryDate.toLocaleString()} 止）。`);
   }
 
   function loadFormDataToUI() {
@@ -1107,7 +1079,7 @@
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     btn.classList.add('active');
-    updateFormStatusesAndLocks();
+    applyLockToActiveTab();
   }
 
   function renderGoalTable() {
@@ -1235,33 +1207,27 @@
       let st = activeTargetEmp.formLocks[t] || 'draft';
       
       if (badge) {
+        let now = new Date();
+        let isExpiring = activeTargetEmp.unlockExpiries && activeTargetEmp.unlockExpiries[t] && new Date(activeTargetEmp.unlockExpiries[t]) > now;
+
         if (st === 'approved') {
           badge.className = 'status-tag st-approved';
           badge.innerText = '狀態：主管已核准';
-        } else if (st === 'locked') {
+        } else if (isExpiring) {
+          badge.className = 'status-tag st-pending';
+          badge.style.background = '#dbeafe';
+          badge.style.color = '#1e40af';
+          let expiryStr = new Date(activeTargetEmp.unlockExpiries[t]).toLocaleDateString();
+          badge.innerText = `狀態：解鎖展延中 (至 ${expiryStr})`;
+        } else if (isLocked) {
           badge.className = 'status-tag st-locked';
           badge.innerText = '狀態：已逾期鎖定 (需 HR 解鎖)';
         } else if (st === 'submitted') {
           badge.className = 'status-tag st-pending';
           badge.innerText = '狀態：待主管覆核';
         } else {
-          // 檢查是否有展延標籤
-          if (activeTargetEmp && activeTargetEmp.extensions && activeTargetEmp.extensions[t]) {
-            let extTime = new Date(activeTargetEmp.extensions[t]).getTime();
-            if (new Date().getTime() <= extTime) {
-              let extDateStr = new Date(activeTargetEmp.extensions[t]).toLocaleDateString();
-              badge.className = 'status-tag st-pending';
-              badge.style.background = '#fef3c7';
-              badge.style.color = '#b45309';
-              badge.innerText = `狀態：已解鎖 (展延至 ${extDateStr})`;
-            } else {
-              badge.className = 'status-tag st-draft';
-              badge.innerText = '狀態：草稿中 (填寫開放中)';
-            }
-          } else {
-            badge.className = 'status-tag st-draft';
-            badge.innerText = '狀態：草稿中 (填寫開放中)';
-          }
+          badge.className = 'status-tag st-draft';
+          badge.innerText = '狀態：草稿中 (填寫開放中)';
         }
       }
     });
@@ -1275,6 +1241,8 @@
     let isHRorMgr = ['hr', 'manager', 'gm', 'cfo'].includes(currentLogUser.userType);
 
     let container = document.getElementById(activeTabId);
+    if (!container) return;
+    
     let inputs = container.querySelectorAll('input, textarea, select');
     let saveBtn = container.querySelector('.btn-save');
 
