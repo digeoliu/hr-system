@@ -157,7 +157,7 @@
 
         <!-- 子區塊 2: 填寫狀態與解鎖 -->
         <div id="hr-status" class="hr-section" style="display:none;">
-          <h4>全公司考核表單狀態與解鎖控制</h4>
+          <h4>全公司考核表單狀態與解鎖控制（解鎖後自動展延 3 天）</h4>
           <table>
             <thead>
               <tr>
@@ -500,12 +500,13 @@
 
       emp.formLocks[tabKey] = 'draft';
       let expireDate = new Date();
-      expireDate.setDate(expireDate.getDate() + 10);
+      expireDate.setDate(expireDate.getDate() + 3); // 自動展延 3 天
       emp.formUnlocks[tabKey] = expireDate.toISOString();
 
       saveDB();
       renderHRStatusTable();
-      alert(`已成功將 ${emp.name} 的「${tabKey === 'tab1' ? '期初目標' : tabKey === 'tab2' ? '期中追蹤' : '期末評核'}」解鎖，並自動展延 10 天寬限期！`);
+      let tabName = tabKey === 'tab1' ? '期初目標' : tabKey === 'tab2' ? '期中追蹤' : '期末評核';
+      alert(`已成功將 ${emp.name} 的「${tabName}」解鎖，並自動展延 3 天寬限期！`);
     }
 
     function updateBossOptions() {
