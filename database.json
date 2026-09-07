@@ -1,0 +1,35 @@
+[
+  {
+    "name": "HR 管理者",
+    "email": "ane32000@gmail.com",
+    "userType": "hr",
+    "role": "admin",
+    "boss": "無(最高主管)",
+    "pwd": "123456",
+    "isFirstLogin": true,
+    "status": "active",
+    "formLocks": {
+      "tab1": "draft",
+      "tab2": "draft",
+      "tab3": "draft"
+    },
+    "data": {
+      "tab1": {
+        "work": []
+      },
+      "tab2": {
+        "Q1": [],
+        "Q2": [],
+        "Q3": []
+      },
+      "tab3": {
+        "scores": {
+          "self": [],
+          "boss": []
+        },
+        "empFeedback": "",
+        "bossComments": ""
+      }
+    }
+  }
+]

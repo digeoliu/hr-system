@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企業線上績效管理系統</title>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --primary-light: #eef2ff;
+    --slate-bg: #f8fafc;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+  }
+
+  * { box-sizing: border-box; font-family: "Microsoft JhengHei", system-ui, -apple-system, sans-serif; }
+  body { background-color: var(--slate-bg); margin: 0; padding: 30px; color: var(--text-main); line-height: 1.5; }
+  .container { max-width: 1160px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); padding: 35px; border: 1px solid var(--border-color); }
+
+  /* 登入與安全彈窗畫面 */
+  #login-screen {
+    max-width: 440px; margin: 80px auto; background: #fff; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); padding: 40px; text-align: center; border: 1px solid var(--border-color);
+  }
+  #login-screen h2 { color: var(--text-main); margin-bottom: 25px; font-size: 22px; font-weight: 700; }
+  .login-field { text-align: left; margin-bottom: 20px; }
+  .login-field label { font-size: 13px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px; }
+  .login-field select, .login-field input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: #fafafa; transition: all 0.2s; }
+  .login-field select:focus, .login-field input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px var(--primary-light); }
+  .btn-login { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; font-size: 15px; font-weight: 600; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+  .btn-login:hover { background: var(--primary-dark); }
+
+  /* 彈窗樣式 */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
+  .modal-card { background: white; padding: 35px; border-radius: 16px; width: 460px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); }
+  .modal-card h3 { margin-top: 0; color: var(--text-main); font-size: 20px; }
+
+  /* 頂部導覽 */
+  .sys-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 25px; }
+  .sys-header h1 { margin: 0; color: var(--text-main); font-size: 22px; font-weight: 700; }
+  .user-badge { background: var(--primary-light); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary); }
+  .btn-logout { background: #fee2e2; color: #dc2626; border: none; padding: 8px 14px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; margin-left: 10px; transition: background 0.2s; }
+  .btn-logout:hover { background: #fecaca; }
+
+  /* 儀表板卡片 */
+  .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
+  .dash-card { background: #fff; border: 1px solid var(--border-color); border-top: 4px solid var(--primary); border-radius: 10px; padding: 24px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+  .dash-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+  .dash-card h3 { margin-top: 0; color: var(--primary); font-size: 17px; font-weight: 600; }
+  .dash-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 0; }
+
+  /* 表格與頁籤 */
+  .info-bar { display: flex; gap: 20px; background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid var(--border-color); }
+  .info-item { flex: 1; }
+  .info-item label { font-size: 12px; color: var(--text-muted); display: block; font-weight: 600; margin-bottom: 4px; }
+  .info-item select, .info-item input { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; background: #fff; }
+
+  .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 25px; gap: 10px; }
+  .tab-btn { padding: 12px 20px; font-size: 14px; font-weight: 600; background: none; border: none; cursor: pointer; color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s; }
+  .tab-btn:hover { color: var(--primary); }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; margin-bottom: 25px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+  th { background-color: #f1f5f9; color: var(--text-main); padding: 12px 10px; border-bottom: 1px solid var(--border-color); text-align: center; font-size: 13px; font-weight: 600; }
+  td { padding: 12px 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; font-size: 14px; background: #fff; }
+  tr:last-child td { border-bottom: none; }
+  input[type="number"], input[type="text"], textarea, select { width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #fff; }
+  input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+  
+  .score-card { background: #f8fafc; border: 1px solid var(--border-color); padding: 20px; border-radius: 10px; display: flex; justify-content: space-around; text-align: center; margin-top: 20px; }
+  .score-box { font-size: 24px; font-weight: 700; color: var(--primary); }
+  .grade-box { font-size: 13px; font-weight: 600; color: #059669; margin-top: 4px; background: #ecfdf5; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+
+  .feedback-section { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .feedback-box label { font-weight: 600; display: block; margin-bottom: 8px; color: var(--text-main); font-size: 13px; }
+
+  .btn-group { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
+  .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+  .btn-export { background-color: #059669; color: white; }
+  .btn-export:hover { background-color: #047857; }
+  .btn-save { background-color: var(--primary); color: white; }
+  .btn-save:hover { background-color: var(--primary-dark); }
+  .btn-unlock { background-color: #d97706; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; }
+  .btn-unlock:hover { background-color: #b45309; }
+  .btn-edit { background-color: #0d9488; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; border:none; cursor:pointer; margin-right: 4px; }
+  .btn-edit:hover { background-color: #0f766e; }
+  .btn-back { background-color: #64748b; color: white; margin-bottom: 20px; }
+  .btn-back:hover { background-color: #475569; }
+  
+  .status-tag { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; display: inline-block; }
+  .st-approved { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+  .st-pending { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  .st-draft { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+  .st-locked { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+  .error-msg { color: #dc2626; font-size: 13px; margin-top: 10px; text-align: center; font-weight: 600; }
+  .deadline-hint { font-size: 12px; color: var(--text-muted); background: #f1f5f9; padding: 8px 12px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid var(--primary); }
+</style>
+</head>
+<body>
+
+<!-- 登入畫面 -->
+<div id="login-screen">
+  <h2>🏢 企業線上績效管理系統</h2>
+  
+  <div class="login-field">
+    <label>帳號 (Email)</label>
+    <input type="text" id="login-email" placeholder="請輸入您的 Email 帳號">
+  </div>
+
+  <div class="login-field">
+    <label>登入密碼 (首次預設 123456)</label>
+    <input type="password" id="login-pwd" value="123456" placeholder="請輸入密碼">
+  </div>
+
+  <button class="btn-login" onclick="attemptLogin()">登入系統</button>
+  <div id="login-error" class="error-msg"></div>
+</div>
+
+<!-- 首次登入變更密碼彈窗 -->
+<div class="modal-overlay" id="first-login-modal">
+  <div class="modal-card">
+    <h3 style="color:#dc2626;">🔒 首次登入安全設定</h3>
+    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">基於資安考量，首次登入必須將預設密碼變更為您的個人專屬新密碼（至少 6 碼）。</p>
+    <div class="login-field">
+      <label>請輸入新密碼</label>
+      <input type="password" id="new-password" placeholder="請輸入新密碼">
+    </div>
+    <div class="login-field">
+      <label>再次確認新密碼</label>
+      <input type="password" id="confirm-password" placeholder="請再次輸入新密碼">
+    </div>
+    <button class="btn-login" style="background:#059669;" onclick="saveFirstPassword()">儲存新密碼並進入系統</button>
+    <div id="pwd-error" class="error-msg"></div>
+  </div>
+</div>
+
+<!-- HR 編輯員工資料彈窗 -->
+<div class="modal-overlay" id="edit-emp-modal">
+  <div class="modal-card">
+    <h3>✏️ 編輯員工資料與權限設定</h3>
+    <input type="hidden" id="edit-emp-idx">
+    <div class="login-field">
+      <label>員工姓名</label>
+      <input type="text" id="edit-emp-name">
+    </div>
+    <div class="login-field">
+      <label>Email 帳號</label>
+      <input type="text" id="edit-emp-email">
+    </div>
+    <div class="login-field">
+      <label>帳號狀態</label>
+      <select id="edit-emp-status">
+        <option value="active">🟢 啟用 (正常在職)</option>
+        <option value="inactive">🔴 停用 (離職 / 留職停薪)</option>
+      </select>
+    </div>
+    <div class="login-field">
+      <label>角色身份</label>
+      <select id="edit-emp-type">
+        <option value="staff">👤 一般員工</option>
+        <option value="manager">👔 單位主管</option>
+        <option value="gm">👔 總經理</option>
+        <option value="cfo">💼 財務長</option>
+        <option value="hr">⚙️ HR 管理者</option>
+      </select>
+    </div>
+    <div class="login-field">
+      <label>專業職類</label>
+      <select id="edit-emp-role">
+        <option value="sales">Sales 業務</option>
+        <option value="service">Service 客服技術</option>
+        <option value="admin">行政支援</option>
+      </select>
+    </div>
+    <div class="login-field">
+      <label>直屬主管 / 覆核主管</label>
+      <select id="edit-emp-boss"></select>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-save" style="flex:1;" onclick="saveEmpEdit()">儲存修改</button>
+      <button class="btn btn-back" style="flex:1; margin:0;" onclick="closeEditModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 主系統介面區 -->
+<div class="container" id="main-system" style="display: none;">
+  <div class="sys-header">
+    <h1>🏢 企業線上績效管理系統</h1>
+    <div style="display:flex; align-items:center;">
+      <span class="user-badge" id="current-user-badge">登入者: -</span>
+      <button class="btn-logout" onclick="logout()">登出</button>
+    </div>
+  </div>
+
+  <!-- HR 管理者控制台 -->
+  <div id="hr-dashboard" style="display: none;">
+    <h2 style="color:var(--text-main); margin-bottom:5px; font-size:20px;">⚙️ HR 管理者控制台</h2>
+    <p style="color:var(--text-muted); margin-bottom:20px; font-size:14px;">請選擇您要執行的管理功能模組：</p>
+
+    <div class="dashboard-grid">
+      <div class="dash-card" onclick="showHRSection('hr-users')">
+        <h3>👥 1. 員工帳號與權限管理</h3>
+        <p>管理員工 Email、狀態（啟用/停用）、角色調整與重置預設密碼 (123456)，支援 CSV 批次匯入。</p>
+      </div>
+
+      <div class="dash-card" onclick="showHRSection('hr-status')">
+        <h3>📈 2. 全公司進度與逾期解鎖釋放</h3>
+        <p>監控填寫狀態，針對逾期自動鎖定之表單執行 HR 後台強制解鎖釋放編輯權限。</p>
+      </div>
+
+      <div class="dash-card" onclick="showHRSection('hr-export')">
+        <h3>📊 3. 績效總分彙整與 CSV 匯出</h3>
+        <p>產出全公司同仁評分總表與質性評語報告。</p>
+      </div>
+
+      <div class="dash-card" onclick="showHRSection('hr-eval-view')">
+        <h3>🔍 4. 個別同仁評核單調閱與編輯</h3>
+        <p>查閱或代為調整個別員工的期初、期中與期末評核細項。</p>
+      </div>
+    </div>
+
+    <!-- HR 子功能 1 -->
+    <div id="hr-users" class="admin-subpanel" style="display:none; margin-top:25px; background:#fff; padding:25px; border-radius:10px; border:1px solid var(--border-color);">
+      <button class="btn btn-back" onclick="hideHRSections()">← 返回 HR 控制台主頁</button>
+      <h3 style="margin-top:0; font-size:18px;">👥 員工帳號、Email 與密碼狀態管理</h3>
+      
+      <!-- 批次匯入區塊 -->
+      <div style="background:#eef2ff; padding:20px; border-radius:8px; border:1px solid #c7d2fe; margin-bottom:20px;">
+        <h4 style="margin-top:0; color:var(--primary); font-size:15px;">📂 批次匯入員工資料 (CSV)</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">您可以上傳 CSV 檔案一次新增多位員工。格式範例：<code>姓名,Email,角色(staff/manager/gm/cfo/hr),職類(sales/service/admin),直屬主管</code></p>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <input type="file" id="csv-file-input" accept=".csv" style="background:#fff; padding:6px; flex:1;">
+          <button class="btn btn-save" style="width:auto; margin:0; padding:8px 16px;" onclick="importCSVEmployees()">📥 匯入檔案</button>
+          <button class="btn btn-export" style="width:auto; margin:0; padding:8px 16px;" onclick="downloadCSVTemplate()">📄 下載範例 CSV</button>
+        </div>
+      </div>
+
+      <div style="background:var(--slate-bg); padding:20px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:20px;">
+        <h4 style="margin-top:0; color:var(--primary); font-size:15px;">➕ 單筆新增人員資料</h4>
+        <div style="display:grid; grid-template-columns: 1fr 1.2fr 1fr 1fr 1.2fr auto; gap:12px; align-items:center;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">姓名</label>
+            <input type="text" id="new-emp-name" placeholder="如: 王小明">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Email 帳號</label>
+            <input type="text" id="new-emp-email" placeholder="信箱格式">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">角色身份</label>
+            <select id="new-emp-user-type">
+              <option value="staff">👤 一般員工</option>
+              <option value="manager">👔 單位主管</option>
+              <option value="gm">👔 總經理</option>
+              <option value="cfo">💼 財務長</option>
+              <option value="hr">⚙️ HR 管理者</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">專業職類</label>
+            <select id="new-emp-role">
+              <option value="sales">Sales 業務</option>
+              <option value="service">Service 客服技術</option>
+              <option value="admin">行政支援</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">直屬主管 / 覆核主管</label>
+            <select id="new-emp-boss-select"></select>
+          </div>
+          <div style="align-self:end;">
+            <button class="btn btn-login" style="width:auto; margin:0; padding:9px 16px;" onclick="addEmployee()">新增</button>
+          </div>
+        </div>
+      </div>
+
+      <table id="emp-manage-table">
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>Email 帳號</th>
+            <th>帳號狀態</th>
+            <th>角色身份</th>
+            <th>職類</th>
+            <th>直屬主管 / 覆核主管</th>
+            <th>密碼安全狀態</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- HR 子功能 2 -->
+    <div id="hr-status" class="admin-subpanel" style="display:none; margin-top:25px; background:#fff; padding:25px; border-radius:10px; border:1px solid var(--border-color);">
+      <button class="btn btn-back" onclick="hideHRSections()">← 返回 HR 控制台主頁</button>
+      <h3 style="margin-top:0; font-size:18px;">📈 全公司 2026 年度績效填寫進度與逾期解鎖釋放</h3>
+      <p style="font-size:13px; color:var(--text-muted);">若表單因超過期限自動上鎖（顯示紅字「已逾期鎖定」），HR 可在此點擊各階段按鈕手動解鎖。</p>
+      <table>
+        <thead>
+          <tr><th>員工姓名</th><th>Email</th><th>角色</th><th>直屬主管</th><th>期初約定</th><th>期中追蹤</th><th>期末評核</th><th>HR 後台解鎖釋放</th></tr>
+        </thead>
+        <tbody id="status-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- HR 子功能 3 -->
+    <div id="hr-export" class="admin-subpanel" style="display:none; margin-top:25px; background:#fff; padding:25px; border-radius:10px; border:1px solid var(--border-color);">
+      <button class="btn btn-back" onclick="hideHRSections()">← 返回 HR 控制台主頁</button>
+      <h3 style="margin-top:0; font-size:18px;">📊 匯出全公司績效精簡總表</h3>
+      <p style="color:var(--text-muted); font-size:14px;">包含自評總分、主管最終評分、等第與相關評語。</p>
+      <button class="btn btn-export" onclick="exportCompanyCSV()">📊 下載全公司 CSV 彙整報表</button>
+    </div>
+  </div>
+
+  <!-- 主管專屬導覽主頁 -->
+  <div id="boss-dashboard" style="display: none;">
+    <h2 style="color:var(--text-main); margin-bottom:5px; font-size:20px;">👔 主管工作台選項</h2>
+    <p style="color:var(--text-muted); margin-bottom:20px; font-size:14px;">請選擇您要執行的作業：</p>
+
+    <div class="dashboard-grid">
+      <div class="dash-card" onclick="showBossSection('pending-list')">
+        <h3>📋 1. 待評核與簽核表單（主管覆評）</h3>
+        <p>查閱部屬提報之期初目標、期中進度與期末考核，進行審核、評分與簽核。</p>
+      </div>
+
+      <div class="dash-card" onclick="openBossSelfEval()">
+        <h3>👤 2. 個人績效表單（主管自評）</h3>
+        <p>填寫您個人的 2026 年度目標約定、期中追蹤與期末自評表單。</p>
+      </div>
+    </div>
+
+    <!-- 主管待審核清單子分頁 -->
+    <div id="boss-pending-panel" style="display:none; margin-top:25px; background:#fff; padding:25px; border-radius:10px; border:1px solid var(--border-color);">
+      <button class="btn btn-back" onclick="hideBossSubPanels()">← 返回主管工作台</button>
+      <h3 style="margin-top:0; font-size:18px;">📋 轄下同仁待評核表單清單</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>部屬姓名</th>
+            <th>Email</th>
+            <th>職類</th>
+            <th>期初目標</th>
+            <th>期中追蹤</th>
+            <th>期末評核</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="boss-pending-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 評核單主體區 -->
+  <div id="evaluation-form-area" style="display:none;">
+    <div id="form-back-btn-box" style="display:none;">
+      <button class="btn btn-back" onclick="backFromForm()">← 返回上一頁</button>
+    </div>
+
+    <!-- 基本資料區 -->
+    <div class="info-bar">
+      <div class="info-item">
+        <label>員工姓名</label>
+        <input type="text" id="emp-name" readonly style="background:#f1f5f9;">
+      </div>
+      <div class="info-item">
+        <label>職類分組</label>
+        <select id="role-select" onchange="onRoleSelectChange()">
+          <option value="sales">Sales 業務職類</option>
+          <option value="service">Service 技術客服職類</option>
+          <option value="admin">行政支援職類</option>
+        </select>
+      </div>
+      <div class="info-item">
+        <label>直屬主管 / 覆核主管</label>
+        <input type="text" id="boss-name" readonly style="background:#f1f5f9;">
+      </div>
+      <div class="info-item">
+        <label>考核年度/區間</label>
+        <input type="text" value="2026 年度績效考核" readonly style="background:#f1f5f9;">
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('tab1', this)">1. 期初目標約定</button>
+      <button class="tab-btn" onclick="switchTab('tab2', this)">2. 期中季度追蹤 (Q1-Q3)</button>
+      <button class="tab-btn" onclick="switchTab('tab3', this)">3. 期末評核 (工作80%+職能20%)</button>
+    </div>
+
+    <!-- 分頁 1：期初目標 -->
+    <div id="tab1" class="tab-content active">
+      <div class="deadline-hint">⏰ <b>期初目標約定填寫期限：</b> 每年 1月1日 ~ 1月10日（逾期自動鎖定，需由 HR 協助解鎖）。</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="margin:0; font-size:17px; color:var(--text-main);">期初目標與衡量標準約定 (KPI / OKR)</h3>
+        <span id="tab1-status" class="status-tag st-pending">狀態：檢查中...</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">考核項目 / 類別</th>
+            <th style="width: 45%;">關鍵結果與衡量標準 (Target / KR)</th>
+            <th style="width: 15%;">預計完成時程</th>
+            <th style="width: 15%;">主管審核狀態</th>
+          </tr>
+        </thead>
+        <tbody id="goal-tbody"></tbody>
+      </table>
+      <div class="btn-group">
+        <button id="btn-save-tab1" class="btn btn-save" onclick="saveSectionData('tab1')">💾 暫存 / 儲存期初目標</button>
+      </div>
+    </div>
+
+    <!-- 分頁 2：期中季度追蹤 -->
+    <div id="tab2" class="tab-content">
+      <div class="deadline-hint">⏰ <b>季追蹤填寫期限：</b> 每季的第一個月 1日 ~ 10日（即 Q1: 4/1~4/10, Q2: 7/1~7/10, Q3: 10/1~10/10，逾期自動鎖定）。</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="margin:0; font-size:17px; color:var(--text-main);">期中季度績效檢視與輔導紀錄</h3>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span id="tab2-status" class="status-tag st-pending">狀態：檢查中...</span>
+          <select id="quarter-select" style="width: auto; padding: 6px 12px;" onchange="renderMidtermTable()">
+            <option value="Q1">Q1 第一季追蹤 (4月)</option>
+            <option value="Q2">Q2 第二季追蹤 (7月)</option>
+            <option value="Q3">Q3 第三季追蹤 (10月)</option>
+          </select>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">工作目標項目</th>
+            <th style="width: 25%;">連動之關鍵結果 (Target / KR)</th>
+            <th style="width: 25%;">當季推進進度與具體成果說明</th>
+            <th style="width: 12%;">達成率 (%)</th>
+            <th style="width: 18%;">主管輔導回饋與資源提供</th>
+          </tr>
+        </thead>
+        <tbody id="midterm-tbody"></tbody>
+      </table>
+      <div class="btn-group">
+        <button id="btn-save-tab2" class="btn btn-save" onclick="saveSectionData('tab2')">💾 暫存 / 儲存期中追蹤</button>
+      </div>
+    </div>
+
+    <!-- 分頁 3：期末評核 -->
+    <div id="tab3" class="tab-content">
+      <div class="deadline-hint">⏰ <b>年底期末評核填寫期限：</b> 12月15日 ~ 次年 1月15日（逾期自動鎖定）。</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="margin:0; font-size:17px; color:var(--text-main);">期末績效評核表 (工作目標 80% + 關鍵職能 20%)</h3>
+        <span id="tab3-status" class="status-tag st-pending">狀態：檢查中...</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">評分類別與項目</th>
+            <th style="width: 30%;">關鍵結果 / 衡量標準 (連動目標)</th>
+            <th style="width: 8%;">權重</th>
+            <th style="width: 11%;">自評 (1-100)</th>
+            <th style="width: 10%;">自評加權</th>
+            <th style="width: 11%;">覆評 (1-100)</th>
+            <th style="width: 10%;">覆評加權</th>
+          </tr>
+        </thead>
+        <tbody id="eval-tbody"></tbody>
+      </table>
+
+      <div class="score-card">
+        <div>
+          <div style="font-size:13px; color:var(--text-muted); font-weight:600;">員工自評總分</div>
+          <div class="score-box" id="self-total">0.0 分</div>
+          <div class="grade-box" id="self-grade">-</div>
+        </div>
+        <div style="border-left: 1px solid var(--border-color);"></div>
+        <div>
+          <div style="font-size:13px; color:var(--text-muted); font-weight:600;">主管覆評最終得分</div>
+          <div class="score-box" id="boss-total">0.0 分</div>
+          <div class="grade-box" id="boss-grade">-</div>
+        </div>
+      </div>
+
+      <div class="feedback-section">
+        <div class="feedback-box">
+          <label>💬 員工回饋 (對年度目標、職涯規劃或公司之建議)：</label>
+          <textarea id="emp-feedback" style="height:100px;" placeholder="個人總結與建議..."></textarea>
+        </div>
+        <div class="feedback-box">
+          <label>📝 主管總評語 (具體回饋與改善建議)：</label>
+          <textarea id="boss-comments" style="height:100px;" placeholder="主管評語..."></textarea>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-export" onclick="exportSummaryCSV()">📊 匯出單頁精簡 CSV 報表</button>
+        <button id="btn-save-tab3" class="btn btn-save" onclick="saveSectionData('tab3')">💾 暫存 / 儲存期末評核</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let defaultDB = [
+    {
+      name: "HR 管理者",
+      email: "ane32000@gmail.com",
+      userType: "hr",
+      role: "admin",
+      boss: "無(最高主管)",
+      pwd: "123456",
+      isFirstLogin: true,
+      status: "active",
+      formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
+      data: { tab1: { work: [] }, tab2: { Q1: [], Q2: [], Q3: [] }, tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" } }
+    },
+    {
+      name: "總經理",
+      email: "gm@company.com",
+      userType: "gm",
+      role: "admin",
+      boss: "無(最高主管)",
+      pwd: "123456",
+      isFirstLogin: true,
+      status: "active",
+      formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
+      data: { tab1: { work: [] }, tab2: { Q1: [], Q2: [], Q3: [] }, tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" } }
+    },
+    {
+      name: "財務長",
+      email: "cfo@company.com",
+      userType: "cfo",
+      role: "admin",
+      boss: "總經理",
+      pwd: "123456",
+      isFirstLogin: true,
+      status: "active",
+      formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
+      data: { tab1: { work: [] }, tab2: { Q1: [], Q2: [], Q3: [] }, tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" } }
+    },
+    {
+      name: "陳主管",
+      email: "manager.chen@company.com",
+      userType: "manager",
+      role: "sales",
+      boss: "總經理",
+      pwd: "123456",
+      isFirstLogin: true,
+      status: "active",
+      formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
+      data: { tab1: { work: [] }, tab2: { Q1: [], Q2: [], Q3: [] }, tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" } }
+    },
+    {
+      name: "張小明",
+      email: "ming@company.com",
+      userType: "staff",
+      role: "admin",
+      boss: "陳主管",
+      pwd: "123456",
+      isFirstLogin: true,
+      status: "active",
+      formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
+      data: {
+        tab1: {
+          work: [
+            { target: "退件率 ≤ 2%，異常及時修正", time: "2026 Q4", status: "待審核" },
+            { target: "臨時事項結案率 ≥ 80%", time: "2026 Q3", status: "待審核" },
+            { target: "檔案歸檔與管理 SOP 完成", time: "2026 Q2", status: "待審核" }
+          ]
+        },
+        tab2: {
+          Q1: [{ progress: "作業正常執行中", rate: 85, coach: "繼續保持" }],
+          Q2: [{ progress: "", rate: 0, coach: "" }],
+          Q3: [{ progress: "", rate: 0, coach: "" }]
+        },
+        tab3: {
+          scores: { self: [85, 90, 80, 85, 88, 90, 85], boss: [88, 92, 82, 85, 90, 88, 86] },
+          empFeedback: "希望公司能提供更多行政效率工具。",
+          bossComments: "行政作業細心，表現優良。"
+        }
+      }
+    }
+  ];
+
+  let employeeDB = JSON.parse(localStorage.getItem("SYS_EMP_DB")) || defaultDB;
+  let currentLogUser = null;
+  let activeTargetEmp = null; 
+
+  const roleData = {
+    sales: {
+      work: [
+        { name: "1. 開發潛在市場", desc: "完成有效拜訪與新客戶簽約", w: 0.20 },
+        { name: "2. 強化客群信任", desc: "核心客戶續約率與營收成長", w: 0.40 },
+        { name: "3. 優化產品獲利結構", desc: "重點產品 Demo 與銷售達成率", w: 0.20 }
+      ],
+      competency: [
+        { name: "1. 企圖心與目標積極度", desc: "目標落後時主動提出改善行動", w: 0.05 },
+        { name: "2. 談判溝通與影響力", desc: "展現說服力促成任務推進", w: 0.05 },
+        { name: "3. 業務紀律與常態回報", desc: "落實業務資訊及時更新", w: 0.05 },
+        { name: "4. 能力提升目標", desc: "研讀新產品知識並內部分享", w: 0.05 }
+      ]
+    },
+    service: {
+      work: [
+        { name: "1. 報修處理時效", desc: "回應時間 ≦ 2小時，結案率 ≧ 95%", w: 0.20 },
+        { name: "2. 維修技術提升", desc: "一次完修率 ≧ 70%", w: 0.40 },
+        { name: "3. 技術文件建立", desc: "完成維修 SOP 與 FAQ", w: 0.20 }
+      ],
+      competency: [
+        { name: "1. 例行業務品質", desc: "作業與數據保持精確", w: 0.05 },
+        { name: "2. 跨部門協作", desc: "回應速度與配合度", w: 0.05 },
+        { name: "3. 服務熱忱", desc: "釐清突發狀況原因並提替代方案", w: 0.05 },
+        { name: "4. 流程優化", desc: "協助流程優化與執行專案", w: 0.05 }
+      ]
+    },
+    admin: {
+      work: [
+        { name: "1. 確保作業品質", desc: "退件率 ≤ 2%，異常及時修正", w: 0.40 },
+        { name: "2. 臨時需求回應", desc: "臨時事項結案率 ≧ 80%", w: 0.20 },
+        { name: "3. 文件管理", desc: "檔案歸檔與管理 SOP", w: 0.20 }
+      ],
+      competency: [
+        { name: "1. 團隊協作", desc: "支援各單位任務態度積極", w: 0.05 },
+        { name: "2. 問題解決", desc: "提出有效改善建議", w: 0.05 },
+        { name: "3. 遵守規定", desc: "落實規章與出勤紀律", w: 0.05 },
+        { name: "4. 自我提升", desc: "學習新技能並運用於工作", w: 0.05 }
+      ]
+    }
+  };
+
+  window.onload = function() {
+    updateBossOptions();
+  };
+
+  function saveDB() {
+    localStorage.setItem("SYS_EMP_DB", JSON.stringify(employeeDB));
+  }
+
+  function getTypeLabel(type) {
+    if (type === 'gm') return '👔 總經理';
+    if (type === 'cfo') return '💼 財務長';
+    if (type === 'manager') return '👔 主管';
+    if (type === 'hr') return '⚙️ HR';
+    return '👤 員工';
+  }
+
+  function checkIsLocked(tabKey) {
+    if (activeTargetEmp.formLocks[tabKey] === 'locked') return true;
+    let now = new Date();
+    let m = now.getMonth() + 1;
+    let d = now.getDate();
+
+    if (tabKey === 'tab1') {
+      let isWithin = (m === 1 && d >= 1 && d <= 10);
+      return !isWithin;
+    } else if (tabKey === 'tab2') {
+      let q = document.getElementById('quarter-select').value;
+      let targetMonth = (q === 'Q1') ? 4 : (q === 'Q2') ? 7 : 10;
+      let isWithin = (m === targetMonth && d >= 1 && d <= 10);
+      return !isWithin;
+    } else if (tabKey === 'tab3') {
+      let isWithin = (m === 12 && d >= 15) || (m === 1 && d <= 15);
+      return !isWithin;
+    }
+    return false;
+  }
+
+  function updateBossOptions() {
+    const bossSelect = document.getElementById('new-emp-boss-select');
+    const editBossSelect = document.getElementById('edit-emp-boss');
+    
+    let html = '<option value="無(最高主管)">無(最高主管)</option>';
+    employeeDB.forEach(mgr => {
+      html += `<option value="${mgr.name}">${mgr.name}</option>`;
+    });
+
+    if (bossSelect) bossSelect.innerHTML = html;
+    if (editBossSelect) editBossSelect.innerHTML = html;
+  }
+
+  function attemptLogin() {
+    let emailInput = document.getElementById('login-email').value.trim();
+    let pwdInput = document.getElementById('login-pwd').value;
+    let errDiv = document.getElementById('login-error');
+    errDiv.innerText = "";
+
+    if (!emailInput) { errDiv.innerText = "請輸入 Email 帳號！"; return; }
+    let user = employeeDB.find(e => e.email && e.email.toLowerCase() === emailInput.toLowerCase());
+
+    if (!user) { errDiv.innerText = "找不到此 Email 帳號，請確認輸入是否正確！"; return; }
+    if (user.status === 'inactive') { errDiv.innerText = "【無法登入】該帳號目前為「停用」狀態，請聯繫 HR。"; return; }
+    if (pwdInput !== user.pwd) { errDiv.innerText = "密碼錯誤！(首次登入預設密碼為 123456)"; return; }
+
+    currentLogUser = user;
+    activeTargetEmp = user; 
+
+    if (currentLogUser.isFirstLogin) {
+      document.getElementById('first-login-modal').style.display = 'flex';
+    } else {
+      enterMainSystem();
+    }
+  }
+
+  function saveFirstPassword() {
+    let p1 = document.getElementById('new-password').value;
+    let p2 = document.getElementById('confirm-password').value;
+    let errDiv = document.getElementById('pwd-error');
+    errDiv.innerText = "";
+
+    if (!p1 || p1 !== p2) { errDiv.innerText = "兩次輸入的新密碼不相符！"; return; }
+    if (p1.length < 6) { errDiv.innerText = "基於安全考量，新密碼至少需要 6 個字元！"; return; }
+
+    currentLogUser.pwd = p1;
+    currentLogUser.isFirstLogin = false;
+    saveDB();
+    
+    document.getElementById('first-login-modal').style.display = 'none';
+    alert("密碼設定成功！歡迎進入系統。");
+    enterMainSystem();
+  }
+
+  function enterMainSystem() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-system').style.display = 'block';
+
+    updateBossOptions();
+
+    if (currentLogUser.userType === 'hr') {
+      document.getElementById('current-user-badge').innerText = `HR 管理者：${currentLogUser.email}`;
+      document.getElementById('hr-dashboard').style.display = 'block';
+      document.getElementById('boss-dashboard').style.display = 'none';
+      document.getElementById('evaluation-form-area').style.display = 'none';
+      renderHRSubPanels();
+    } else if (['manager', 'gm', 'cfo'].includes(currentLogUser.userType)) {
+      document.getElementById('current-user-badge').innerText = `主管：${currentLogUser.name}`;
+      document.getElementById('hr-dashboard').style.display = 'none';
+      document.getElementById('boss-dashboard').style.display = 'block';
+      document.getElementById('evaluation-form-area').style.display = 'none';
+      hideBossSubPanels();
+    } else {
+      document.getElementById('hr-dashboard').style.display = 'none';
+      document.getElementById('boss-dashboard').style.display = 'none';
+      document.getElementById('evaluation-form-area').style.display = 'block';
+      document.getElementById('form-back-btn-box').style.display = 'none';
+      document.getElementById('current-user-badge').innerText = `員工：${currentLogUser.name}`;
+      loadFormDataToUI();
+    }
+  }
+
+  function logout() {
+    document.getElementById('login-screen').style.display = 'block';
+    document.getElementById('main-system').style.display = 'none';
+    document.getElementById('login-email').value = "";
+    document.getElementById('login-pwd').value = "123456";
+    document.getElementById('login-error').innerText = "";
+  }
+
+  function showBossSection(sec) {
+    if (sec === 'pending-list') {
+      document.getElementById('boss-pending-panel').style.display = 'block';
+      renderBossPendingList();
+    }
+  }
+
+  function hideBossSubPanels() {
+    document.getElementById('boss-pending-panel').style.display = 'none';
+  }
+
+  function renderBossPendingList() {
+    const tbody = document.getElementById('boss-pending-tbody');
+    tbody.innerHTML = '';
+    const subs = employeeDB.filter(e => e.boss === currentLogUser.name || currentLogUser.userType === 'gm');
+
+    if (subs.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">目前尚無指派給您的待簽核部屬資料。</td></tr>`;
+      return;
+    }
+
+    subs.forEach((sub) => {
+      tbody.innerHTML += `<tr>
+        <td><b>${sub.name}</b></td>
+        <td style="font-size:13px; color:var(--text-muted);">${sub.email || '-'}</td>
+        <td>${sub.role.toUpperCase()}</td>
+        <td>${getStatusTag(sub.formLocks.tab1)}</td>
+        <td>${getStatusTag(sub.formLocks.tab2)}</td>
+        <td>${getStatusTag(sub.formLocks.tab3)}</td>
+        <td><button class="btn-edit" onclick="openBossEvalForm('${sub.name}')">🔍 覆評/簽核</button></td>
+      </tr>`;
+    });
+  }
+
+  function openBossEvalForm(subName) {
+    activeTargetEmp = employeeDB.find(e => e.name === subName);
+    document.getElementById('boss-dashboard').style.display = 'none';
+    document.getElementById('evaluation-form-area').style.display = 'block';
+    document.getElementById('form-back-btn-box').style.display = 'block';
+    loadFormDataToUI();
+  }
+
+  function openBossSelfEval() {
+    activeTargetEmp = currentLogUser;
+    document.getElementById('boss-dashboard').style.display = 'none';
+    document.getElementById('evaluation-form-area').style.display = 'block';
+    document.getElementById('form-back-btn-box').style.display = 'block';
+    loadFormDataToUI();
+  }
+
+  function backFromForm() {
+    document.getElementById('evaluation-form-area').style.display = 'none';
+    if (currentLogUser.userType === 'hr') {
+      document.getElementById('hr-dashboard').style.display = 'block';
+    } else if (['manager', 'gm', 'cfo'].includes(currentLogUser.userType)) {
+      document.getElementById('boss-dashboard').style.display = 'block';
+      showBossSection('pending-list');
+    }
+  }
+
+  function showHRSection(secId) {
+    hideHRSections();
+    if (secId === 'hr-eval-view') {
+      if(employeeDB.length === 0) { alert("目前無員工資料！"); return; }
+      document.getElementById('hr-dashboard').style.display = 'none';
+      document.getElementById('evaluation-form-area').style.display = 'block';
+      document.getElementById('form-back-btn-box').style.display = 'block';
+      activeTargetEmp = employeeDB[0];
+      loadFormDataToUI();
+    } else {
+      document.getElementById(secId).style.display = 'block';
+      if(secId === 'hr-users') renderEmpManageTable();
+      if(secId === 'hr-status') renderHRStatusTable();
+    }
+  }
+
+  function hideHRSections() {
+    document.querySelectorAll('.admin-subpanel').forEach(el => el.style.display = 'none');
+  }
+
+  function addEmployee() {
+    let name = document.getElementById('new-emp-name').value.trim();
+    let email = document.getElementById('new-emp-email').value.trim();
+    if (!name || !email) { alert("請完整輸入員工姓名與 Email 帳號！"); return; }
+
+    let userType = document.getElementById('new-emp-user-type').value;
+    let role = document.getElementById('new-emp-role').value;
+    let boss = document.getElementById('new-emp-boss-select').value;
+
+    let newEmp = {
+      name: name,
+      email: email,
+      userType: userType,
+      role: role,
+      boss: boss,
+      pwd: "123456",
+      isFirstLogin: true,
+      status: "active",
+      formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
+      data: {
+        tab1: { work: [] },
+        tab2: { Q1: [], Q2: [], Q3: [] },
+        tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" }
+      }
+    };
+
+    employeeDB.push(newEmp);
+    saveDB();
+    updateBossOptions();
+    renderEmpManageTable();
+    alert("成功新增員工！");
+    document.getElementById('new-emp-name').value = "";
+    document.getElementById('new-emp-email').value = "";
+  }
+
+  // 下載批次匯入範例 CSV
+  function downloadCSVTemplate() {
+    let csvContent = "\uFEFF" + "姓名,Email,角色身份,專業職類,直屬主管\n" + "王大同,datong@company.com,staff,sales,陳主管\n" + "林美玲,meiling@company.com,manager,service,總經理\n";
+    let encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "員工批次匯入範例.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // 處理批次匯入 CSV 檔案
+  function importCSVEmployees() {
+    let fileInput = document.getElementById('csv-file-input');
+    if (!fileInput.files || fileInput.files.length === 0) {
+      alert("請先選擇要上傳的 CSV 檔案！");
+      return;
+    }
+
+    let file = fileInput.files[0];
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      let text = e.target.result;
+      let lines = text.split(/\r\n|\n/);
+      let count = 0;
+      let skipped = 0;
+
+      // 從第二行開始讀取（略過標題行）
+      for (let i = 1; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line) continue;
+        let cols = line.split(',');
+        if (cols.length >= 5) {
+          let name = cols[0].trim();
+          let email = cols[1].trim();
+          let userType = cols[2].trim() || 'staff';
+          let role = cols[3].trim() || 'sales';
+          let boss = cols[4].trim() || '無(最高主管)';
+
+          // 檢查 Email 是否已存在
+          let exists = employeeDB.some(emp => emp.email && emp.email.toLowerCase() === email.toLowerCase());
+          if (!exists && email) {
+            employeeDB.push({
+              name: name,
+              email: email,
+              userType: userType,
+              role: role,
+              boss: boss,
+              pwd: "123456",
+              isFirstLogin: true,
+              status: "active",
+              formLocks: { tab1: "draft", tab2: "draft", tab3: "draft" },
+              data: {
+                tab1: { work: [] },
+                tab2: { Q1: [], Q2: [], Q3: [] },
+                tab3: { scores: { self: [], boss: [] }, empFeedback: "", bossComments: "" }
+              }
+            });
+            count++;
+          } else {
+            skipped++;
+          }
+        }
+      }
+
+      saveDB();
+      updateBossOptions();
+      renderEmpManageTable();
+      fileInput.value = "";
+      alert(`批次匯入完成！成功新增 ${count} 筆員工資料${skipped > 0 ? `（略過 ${skipped} 筆重複或格式錯誤的 Email）` : ''}。`);
+    };
+    reader.readAsText(file, "UTF-8");
+  }
+
+  function renderEmpManageTable() {
+    const tbody = document.querySelector('#emp-manage-table tbody');
+    tbody.innerHTML = '';
+    employeeDB.forEach((emp, idx) => {
+      let statusHtml = emp.status === 'inactive' ? '<span style="color:#dc2626; font-weight:600;">🔴 停用</span>' : '<span style="color:#059669; font-weight:600;">🟢 啟用</span>';
+      let pwdStatus = emp.isFirstLogin ? '<span style="color:#d97706;">預設 (123456)</span>' : '<span style="color:#059669;">已更改</span>';
+      
+      tbody.innerHTML += `<tr>
+        <td><b>${emp.name}</b></td>
+        <td>${emp.email || '-'}</td>
+        <td>${statusHtml}</td>
+        <td>${getTypeLabel(emp.userType)}</td>
+        <td>${emp.role.toUpperCase()}</td>
+        <td>${emp.boss || '-'}</td>
+        <td>${pwdStatus}</td>
+        <td>
+          <button class="btn-edit" onclick="openEmpEdit(${idx})">編輯</button>
+          <button class="btn-unlock" onclick="resetEmpPwd(${idx})">重設密碼</button>
+        </td>
+      </tr>`;
+    });
+  }
+
+  function openEmpEdit(idx) {
+    let emp = employeeDB[idx];
+    document.getElementById('edit-emp-idx').value = idx;
+    document.getElementById('edit-emp-name').value = emp.name;
+    document.getElementById('edit-emp-email').value = emp.email || '';
+    document.getElementById('edit-emp-status').value = emp.status || 'active';
+    document.getElementById('edit-emp-type').value = emp.userType;
+    document.getElementById('edit-emp-role').value = emp.role;
+    updateBossOptions();
+    document.getElementById('edit-emp-boss').value = emp.boss;
+    document.getElementById('edit-emp-modal').style.display = 'flex';
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-emp-modal').style.display = 'none';
+  }
+
+  function saveEmpEdit() {
+    let idx = document.getElementById('edit-emp-idx').value;
+    let emp = employeeDB[idx];
+    emp.name = document.getElementById('edit-emp-name').value.trim();
+    emp.email = document.getElementById('edit-emp-email').value.trim();
+    emp.status = document.getElementById('edit-emp-status').value;
+    emp.userType = document.getElementById('edit-emp-type').value;
+    emp.role = document.getElementById('edit-emp-role').value;
+    emp.boss = document.getElementById('edit-emp-boss').value;
+
+    saveDB();
+    updateBossOptions();
+    renderEmpManageTable();
+    closeEditModal();
+    alert("員工資料更新成功！");
+  }
+
+  function resetEmpPwd(idx) {
+    if(confirm(`確定要將 ${employeeDB[idx].name} 的密碼重設為預設值 123456 嗎？`)) {
+      employeeDB[idx].pwd = "123456";
+      employeeDB[idx].isFirstLogin = true;
+      saveDB();
+      renderEmpManageTable();
+      alert("密碼已重設為 123456！");
+    }
+  }
+
+  function renderHRStatusTable() {
+    const tbody = document.getElementById('status-tbody');
+    tbody.innerHTML = '';
+    employeeDB.forEach((emp, idx) => {
+      tbody.innerHTML += `<tr>
+        <td><b>${emp.name}</b></td>
+        <td>${emp.email || '-'}</td>
+        <td>${getTypeLabel(emp.userType)}</td>
+        <td>${emp.boss || '-'}</td>
+        <td>${getStatusTag(emp.formLocks.tab1)}</td>
+        <td>${getStatusTag(emp.formLocks.tab2)}</td>
+        <td>${getStatusTag(emp.formLocks.tab3)}</td>
+        <td>
+          <button class="btn-unlock" onclick="hrUnlockForm(${idx}, 'tab1')">解鎖期初</button>
+          <button class="btn-unlock" onclick="hrUnlockForm(${idx}, 'tab2')" style="background:#4f46e5;">解鎖期中</button>
+          <button class="btn-unlock" onclick="hrUnlockForm(${idx}, 'tab3')" style="background:#7c3aed;">解鎖期末</button>
+        </td>
+      </tr>`;
+    });
+  }
+
+  function getStatusTag(st) {
+    if (st === 'approved') return '<span class="status-tag st-approved">已核准</span>';
+    if (st === 'submitted') return '<span class="status-tag st-pending">待覆核</span>';
+    if (st === 'locked') return '<span class="status-tag st-locked">已逾期鎖定</span>';
+    return '<span class="status-tag st-draft">草稿中</span>';
+  }
+
+  function hrUnlockForm(idx, tabKey) {
+    employeeDB[idx].formLocks[tabKey] = 'draft';
+    saveDB();
+    renderHRStatusTable();
+    alert(`已成功將 ${employeeDB[idx].name} 的 [${tabKey}] 表單解鎖釋放！同仁現可重新登入填寫。`);
+  }
+
+  function loadFormDataToUI() {
+    if (!activeTargetEmp) activeTargetEmp = currentLogUser;
+
+    document.getElementById('emp-name').value = activeTargetEmp.name;
+    document.getElementById('boss-name').value = activeTargetEmp.boss || '無';
+    document.getElementById('role-select').value = activeTargetEmp.role;
+
+    renderGoalTable();
+    renderMidtermTable();
+    renderEvalTable();
+
+    document.getElementById('emp-feedback').value = activeTargetEmp.data.tab3.empFeedback || '';
+    document.getElementById('boss-comments').value = activeTargetEmp.data.tab3.bossComments || '';
+    updateFormStatusesAndLocks();
+  }
+
+  function onRoleSelectChange() {
+    let newRole = document.getElementById('role-select').value;
+    activeTargetEmp.role = newRole;
+    saveDB();
+    loadFormDataToUI();
+  }
+
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function renderGoalTable() {
+    const tbody = document.getElementById('goal-tbody');
+    tbody.innerHTML = '';
+    let roleDef = roleData[activeTargetEmp.role] || roleData.sales;
+    let savedWorks = activeTargetEmp.data.tab1.work || [];
+
+    roleDef.work.forEach((item, idx) => {
+      let savedItem = savedWorks[idx] || {};
+      let targetText = savedItem.target !== undefined ? savedItem.target : item.desc;
+      let timeText = savedItem.time || '2026 Q4';
+      let statusText = savedItem.status || '待審核';
+
+      tbody.innerHTML += `<tr>
+        <td><b>${item.name}</b></td>
+        <td><textarea class="goal-target-input" rows="2">${targetText}</textarea></td>
+        <td><input type="text" class="goal-time-input" value="${timeText}"></td>
+        <td><span class="status-tag st-pending">${statusText}</span></td>
+      </tr>`;
+    });
+  }
+
+  function renderMidtermTable() {
+    const tbody = document.getElementById('midterm-tbody');
+    tbody.innerHTML = '';
+    let q = document.getElementById('quarter-select').value;
+    let roleDef = roleData[activeTargetEmp.role] || roleData.sales;
+    let qData = activeTargetEmp.data.tab2[q] || [];
+
+    roleDef.work.forEach((item, idx) => {
+      let saved = qData[idx] || {};
+      let prog = saved.progress || '';
+      let rate = saved.rate !== undefined ? saved.rate : 0;
+      let coach = saved.coach || '';
+
+      tbody.innerHTML += `<tr>
+        <td><b>${item.name}</b></td>
+        <td style="font-size:13px; color:var(--text-muted);">${item.desc}</td>
+        <td><textarea class="mid-prog" rows="2" placeholder="填寫本季成果...">${prog}</textarea></td>
+        <td><input type="number" class="mid-rate" min="0" max="100" value="${rate}"></td>
+        <td><textarea class="mid-coach" rows="2" placeholder="主管回饋...">${coach}</textarea></td>
+      </tr>`;
+    });
+    updateFormStatusesAndLocks();
+  }
+
+  function renderEvalTable() {
+    const tbody = document.getElementById('eval-tbody');
+    tbody.innerHTML = '';
+    let roleDef = roleData[activeTargetEmp.role] || roleData.sales;
+    let scores = activeTargetEmp.data.tab3.scores || { self: [], boss: [] };
+    let allItems = [...roleDef.work, ...roleDef.competency];
+    
+    allItems.forEach((item, idx) => {
+      let selfVal = scores.self && scores.self[idx] !== undefined ? scores.self[idx] : 80;
+      let bossVal = scores.boss && scores.boss[idx] !== undefined ? scores.boss[idx] : 80;
+      let weightPct = Math.round(item.w * 100);
+
+      let selfWVal = (selfVal * item.w).toFixed(1);
+      let bossWVal = (bossVal * item.w).toFixed(1);
+
+      tbody.innerHTML += `<tr>
+        <td><b>${item.name}</b><br><span style="font-size:11px; color:var(--text-muted);">${item.desc}</span></td>
+        <td style="font-size:13px; color:var(--text-muted);">連動 KPI / 目標達成</td>
+        <td style="text-align:center;">${weightPct}%</td>
+        <td><input type="number" class="score-self" min="0" max="100" value="${selfVal}" oninput="calculateScores()"></td>
+        <td style="text-align:center; font-weight:600;" class="self-w-td">${selfWVal}</td>
+        <td><input type="number" class="score-boss" min="0" max="100" value="${bossVal}" oninput="calculateScores()"></td>
+        <td style="text-align:center; font-weight:600;" class="boss-w-td">${bossWVal}</td>
+      </tr>`;
+    });
+
+    calculateScores();
+  }
+
+  function calculateScores() {
+    let selfInputs = document.querySelectorAll('.score-self');
+    let bossInputs = document.querySelectorAll('.score-boss');
+    let selfWTds = document.querySelectorAll('.self-w-td');
+    let bossWTds = document.querySelectorAll('.boss-w-td');
+    let roleDef = roleData[activeTargetEmp.role] || roleData.sales;
+    let allItems = [...roleDef.work, ...roleDef.competency];
+
+    let totalSelf = 0;
+    let totalBoss = 0;
+
+    selfInputs.forEach((inp, idx) => {
+      let w = allItems[idx].w;
+      let sVal = parseFloat(inp.value) || 0;
+      let bVal = parseFloat(bossInputs[idx].value) || 0;
+
+      let sw = sVal * w;
+      let bw = bVal * w;
+
+      selfWTds[idx].innerText = sw.toFixed(1);
+      bossWTds[idx].innerText = bw.toFixed(1);
+
+      totalSelf += sw;
+      totalBoss += bw;
+    });
+
+    document.getElementById('self-total').innerText = totalSelf.toFixed(1) + " 分";
+    document.getElementById('self-grade').innerText = getGradeText(totalSelf);
+    document.getElementById('boss-total').innerText = totalBoss.toFixed(1) + " 分";
+    document.getElementById('boss-grade').innerText = getGradeText(totalBoss);
+  }
+
+  function getGradeText(score) {
+    if (score >= 90) return "評等：優異 (A)";
+    if (score >= 80) return "評等：良好 (B)";
+    if (score >= 70) return "評等：普通 (C)";
+    return "評等：需改善 (D)";
+  }
+
+  function updateFormStatusesAndLocks() {
+    ['tab1', 'tab2', 'tab3'].forEach(t => {
+      let badge = document.getElementById(`${t}-status`);
+      let isLocked = checkIsLocked(t);
+
+      if (isLocked && activeTargetEmp.formLocks[t] !== 'approved' && activeTargetEmp.formLocks[t] !== 'submitted') {
+        activeTargetEmp.formLocks[t] = 'locked';
+      }
+
+      let st = activeTargetEmp.formLocks[t] || 'draft';
+      
+      if (badge) {
+        if (st === 'approved') {
+          badge.className = 'status-tag st-approved';
+          badge.innerText = '狀態：主管已核准';
+        } else if (st === 'locked') {
+          badge.className = 'status-tag st-locked';
+          badge.innerText = '狀態：已逾期鎖定 (需 HR 解鎖)';
+        } else if (st === 'submitted') {
+          badge.className = 'status-tag st-pending';
+          badge.innerText = '狀態：待主管覆核';
+        } else {
+          badge.className = 'status-tag st-draft';
+          badge.innerText = '狀態：草稿中 (填寫開放中)';
+        }
+      }
+    });
+
+    applyLockToActiveTab();
+  }
+
+  function applyLockToActiveTab() {
+    let activeTabId = document.querySelector('.tab-content.active').id;
+    let isLocked = checkIsLocked(activeTabId);
+    let isHRorMgr = ['hr', 'manager', 'gm', 'cfo'].includes(currentLogUser.userType);
+
+    let container = document.getElementById(activeTabId);
+    let inputs = container.querySelectorAll('input, textarea, select');
+    let saveBtn = container.querySelector('.btn-save');
+
+    if (isLocked && !isHRorMgr) {
+      inputs.forEach(el => el.disabled = true);
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = "0.5";
+        saveBtn.innerText = "🔒 已逾期鎖定 (無法儲存)";
+      }
+    } else {
+      inputs.forEach(el => el.disabled = false);
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.style.opacity = "1";
+        saveBtn.innerText = "💾 暫存 / 儲存資料";
+      }
+    }
+  }
+
+  function saveSectionData(tabKey) {
+    if (checkIsLocked(tabKey) && !['hr', 'manager', 'gm', 'cfo'].includes(currentLogUser.userType)) {
+      alert("【無法儲存】此表單已過期並遭到系統鎖定，請聯繫 HR 進行後台解鎖！");
+      return;
+    }
+
+    if (tabKey === 'tab1') {
+      let targets = document.querySelectorAll('.goal-target-input');
+      let times = document.querySelectorAll('.goal-time-input');
+      activeTargetEmp.data.tab1.work = [];
+      targets.forEach((t, i) => {
+        activeTargetEmp.data.tab1.work.push({ target: t.value, time: times[i].value, status: '待審核' });
+      });
+      activeTargetEmp.formLocks.tab1 = 'submitted';
+    } else if (tabKey === 'tab2') {
+      let q = document.getElementById('quarter-select').value;
+      let progs = document.querySelectorAll('.mid-prog');
+      let rates = document.querySelectorAll('.mid-rate');
+      let coachs = document.querySelectorAll('.mid-coach');
+      
+      activeTargetEmp.data.tab2[q] = [];
+      progs.forEach((p, i) => {
+        activeTargetEmp.data.tab2[q].push({
+          progress: p.value,
+          rate: parseFloat(rates[i].value) || 0,
+          coach: coachs[i].value
+        });
+      });
+      activeTargetEmp.formLocks.tab2 = 'submitted';
+    } else if (tabKey === 'tab3') {
+      let selfScores = [];
+      let bossScores = [];
+      document.querySelectorAll('.score-self').forEach(i => selfScores.push(parseFloat(i.value) || 0));
+      document.querySelectorAll('.score-boss').forEach(i => bossScores.push(parseFloat(i.value) || 0));
+
+      activeTargetEmp.data.tab3.scores = { self: selfScores, boss: bossScores };
+      activeTargetEmp.data.tab3.empFeedback = document.getElementById('emp-feedback').value;
+      activeTargetEmp.data.tab3.bossComments = document.getElementById('boss-comments').value;
+      activeTargetEmp.formLocks.tab3 = 'submitted';
+    }
+
+    if (['manager', 'gm', 'cfo', 'hr'].includes(currentLogUser.userType)) {
+      activeTargetEmp.formLocks[tabKey] = 'approved';
+    }
+
+    saveDB();
+    updateFormStatusesAndLocks();
+    alert("資料已成功儲存與提交！");
+  }
+
+  function exportSummaryCSV() {
+    let name = activeTargetEmp.name;
+    let role = activeTargetEmp.role;
+    let selfTotal = document.getElementById('self-total').innerText;
+    let bossTotal = document.getElementById('boss-total').innerText;
+    let empFB = document.getElementById('emp-feedback').value.replace(/,/g, ' ');
+    let bossCM = document.getElementById('boss-comments').value.replace(/,/g, ' ');
+
+    let csvContent = "\uFEFF" + "員工姓名,職類,自評總分,主管覆評總分,員工回饋,主管評語\n" + `${name},${role},${selfTotal},${bossTotal},"${empFB}","${bossCM}"\n`;
+    let encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${name}_2026績效評核報告.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function exportCompanyCSV() {
+    let csvContent = "\uFEFF" + "員工姓名,Email,角色,直屬主管,期初狀態,期中狀態,期末狀態\n";
+    employeeDB.forEach(e => {
+      csvContent += `${e.name},${e.email || ''},${e.userType},${e.boss},${e.formLocks.tab1},${e.formLocks.tab2},${e.formLocks.tab3}\n`;
+    });
+    let encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "全公司2026績效總表.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+</script>
+
+</body>
+</html>
